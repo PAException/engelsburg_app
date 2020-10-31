@@ -730,6 +730,176 @@ class SubstitutionPlanPageState extends State<SubstitutionPlanPage>
           return Center(child: CircularProgressIndicator());
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (context) {
+                var notificationStatus = _prefs.getBool('substitute_notifications');
+                var specifyNotification = _prefs.getBool(
+                    'specify_substitute_notifications');
+                var notificationProfiles = _prefs.getBool(
+                    'substitute_notifications_profiles');
+                return StatefulBuilder(
+                    builder: (context, setState) {
+                      return AlertDialog(
+                        backgroundColor: Colors.grey[50],
+                        title: Text('Benachrichtigungen'),
+                        content: Scaffold(
+                          body: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Aktiviert'),
+                                  Switch(
+                                    onChanged: (bool status) {
+                                      _prefs.setBool(
+                                          'substitute_notifications', status);
+                                      setState(() => notificationStatus = status);
+                                    },
+                                    value: notificationStatus ?? false,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Veränderungen anzeigen'),
+                                  Switch(
+                                    onChanged: (bool status) {
+                                      _prefs.setBool(
+                                          'specify_substitute_notifications', status);
+                                      setState(() => specifyNotification = status);
+                                    },
+                                    value: specifyNotification ?? false,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Erlaube Profile'),
+                                  Switch(
+                                    onChanged: (bool status) {
+                                      _prefs.setBool(
+                                          'substitute_notifications_profiles',
+                                          status);
+                                      setState(() => notificationProfiles = status);
+                                    },
+                                    value: notificationProfiles ?? false,
+                                  )
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  OutlineButton(
+                                    child: Text('Profile'),
+                                    color: notificationProfiles ?
+                                      Theme.of(context).buttonColor :
+                                      Theme.of(context).toggleButtonsTheme.color,
+                                    onPressed: notificationProfiles ? () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              var rows = <Row>[];
+
+                                              rows.add(Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  OutlineButton(
+                                                    child: Text('Hinzufügen'),
+                                                    onPressed:() {
+
+                                                      var newRows = <Row>[];
+                                                      newRows.addAll(rows);
+                                                      var weekday = 'Mo';
+                                                      var lesson = 1;
+                                                      String teacher;
+
+                                                      newRows.insert(0, Row(
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: [
+                                                          DropdownButton<String>(
+                                                            value: weekday,
+                                                            icon: Icon(Icons.arrow_downward),
+                                                            iconSize: 20,
+                                                            elevation: 16,
+                                                            underline: Container(
+                                                              height: 2,
+                                                            ),
+                                                            onChanged: (String newWeekday) => setState(() => weekday = newWeekday),
+                                                            items: <String>['Mo', 'Di', 'Mi', 'Do', 'Fr']
+                                                                .map<DropdownMenuItem<String>>((String value) {
+                                                              return DropdownMenuItem<String>(
+                                                                value: value,
+                                                                child: Text(value),
+                                                              );
+                                                            }).toList(),
+                                                          ),
+                                                          DropdownButton<int>(
+                                                            value: lesson,
+                                                            icon: Icon(Icons.arrow_downward),
+                                                            iconSize: 20,
+                                                            elevation: 16,
+                                                            underline: Container(
+                                                              height: 2,
+                                                            ),
+                                                            onChanged: (int newLesson) => setState(() => lesson = newLesson),
+                                                            items: <int>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                                                                .map<DropdownMenuItem<int>>((int value) {
+                                                              return DropdownMenuItem<int>(
+                                                                value: value,
+                                                                child: Text(value.toString()),
+                                                              );
+                                                            }).toList(),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 120,
+                                                            child: TextField(
+                                                              decoration: InputDecoration(
+                                                                border: OutlineInputBorder(),
+                                                                labelText: 'Lehrer',
+                                                              ),
+                                                              onChanged: (String value) => teacher = value,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ));
+
+                                                      newRows.forEach((element) {
+                                                        print(element.children);
+                                                      });
+
+                                                      setState(() => rows = newRows);
+                                                    }),
+                                                ],
+                                              ));
+
+                                              return StatefulBuilder(
+                                                  builder: (context, setState) {
+                                                    return AlertDialog(
+                                                      title: Text('Profile'),
+                                                      backgroundColor: Colors.grey[50],
+                                                      content: Column(children: rows),
+                                                    );
+                                              });
+                                            },
+                                        );
+                                      } : null,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    });
+              });
+        },
+        child: Icon(Icons.notifications_rounded),
+      ),
     );
   }
 }
